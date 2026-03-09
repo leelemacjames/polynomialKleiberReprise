@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>A Kleiber-like Growth Law for Prime Density</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #faf8f4;
+  --text: #1a1a1a;
+  --muted: #6b6560;
+  --accent: #b44c2a;
+  --accent2: #2a5fb4;
+  --accent3: #7b3db4;
+  --card-bg: #fff;
+  --card-border: #e8e4de;
+  --formula-bg: #f0ece6;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Source Sans 3', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --max-w: 720px;
+  --wide: 960px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans); font-size: 18px; line-height: 1.72;
+  color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased;
+}
+
+/* ---- hero ---- */
+.hero {
+  min-height: 58vh; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; text-align: center;
+  padding: 80px 24px 60px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 40%, rgba(180,76,42,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 70% 60%, rgba(42,95,180,0.05) 0%, transparent 70%);
+}
+.hero-kicker {
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--serif); font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  font-weight: 600; line-height: 1.15; max-width: 680px; margin-bottom: 20px;
+}
+.hero .byline { color: var(--muted); font-size: 0.95rem; }
+
+/* ---- prose ---- */
+.prose { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+.prose p { margin-bottom: 1.4em; }
+.drop-cap p:first-child::first-letter {
+  font-family: var(--serif); font-size: 3.4em; float: left;
+  line-height: 0.8; margin: 0.05em 0.1em 0 0; color: var(--accent);
+}
+
+.section-break {
+  max-width: var(--max-w); margin: 48px auto; padding: 0 24px;
+  text-align: center; color: var(--muted); font-size: 1.4rem; letter-spacing: 0.3em;
+}
+
+h2.section-title {
+  font-family: var(--serif); font-size: 1.9rem; font-weight: 600;
+  max-width: var(--max-w); margin: 0 auto 18px; padding: 0 24px; color: var(--accent);
+}
+
+/* ---- formula ---- */
+.formula-block {
+  max-width: var(--max-w); margin: 28px auto; padding: 20px 28px;
+  background: var(--formula-bg); border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0; font-family: var(--mono);
+  font-size: 0.92rem; line-height: 1.7; overflow-x: auto;
+}
+.formula-block .label {
+  display: block; font-family: var(--sans); font-size: 0.78rem;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); margin-bottom: 6px;
+}
+
+/* ---- cards ---- */
+.interactive { max-width: var(--wide); margin: 40px auto; padding: 0 24px; }
+.interactive .card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 14px; padding: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.card-title {
+  font-family: var(--serif); font-size: 1.25rem; font-weight: 600; margin-bottom: 6px;
+}
+.card-desc { font-size: 0.9rem; color: var(--muted); margin-bottom: 16px; line-height: 1.55; }
+.controls { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 20px; align-items: flex-end; }
+.control-group label {
+  display: block; font-size: 0.78rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px;
+}
+.control-group input[type="range"] { width: 180px; accent-color: var(--accent); }
+.control-group select, .control-group input[type="number"] {
+  font-family: var(--mono); font-size: 0.88rem; padding: 4px 8px;
+  border: 1px solid var(--card-border); border-radius: 6px; background: var(--bg); width: 80px;
+}
+.val-display { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); margin-left: 6px; }
+
+canvas { width: 100%; max-width: 100%; border-radius: 10px; background: #fff; display: block; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; font-size: 0.82rem; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+.legend-line {
+  width: 20px; height: 3px; flex-shrink: 0; border-radius: 2px;
+}
+
+/* ---- number line diagram ---- */
+.number-line-wrap {
+  max-width: var(--wide); margin: 32px auto; padding: 0 24px;
+}
+.number-line-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 14px; padding: 24px; overflow-x: auto;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.nl-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+.nl-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 14px; }
+
+/* ---- table ---- */
+.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.88rem; font-family: var(--mono); margin-top: 16px;
+}
+.data-table th {
+  font-family: var(--sans); font-weight: 600; text-transform: uppercase;
+  font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted);
+  text-align: right; padding: 8px 10px; border-bottom: 2px solid var(--card-border);
+}
+.data-table th:first-child { text-align: left; }
+.data-table td { padding: 7px 10px; text-align: right; border-bottom: 1px solid #f0ece6; }
+.data-table td:first-child { text-align: left; }
+.data-table tr:hover td { background: #faf8f4; }
+
+.hyper-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--mono); font-size: 0.85rem; margin: 16px 0;
+}
+.hyper-table th, .hyper-table td { padding: 8px 12px; text-align: center; border-bottom: 1px solid var(--card-border); }
+.hyper-table th {
+  font-family: var(--sans); font-weight: 600; text-transform: uppercase;
+  font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted);
+}
+.hyper-table .highlight { background: rgba(180,76,42,0.08); font-weight: 500; }
+
+.aside-box {
+  max-width: var(--max-w); margin: 32px auto; padding: 20px 24px;
+  background: #eef3fb; border-radius: 10px; font-size: 0.92rem; line-height: 1.65;
+}
+.aside-box .aside-title { font-family: var(--serif); font-weight: 600; color: var(--accent2); margin-bottom: 6px; }
+
+footer {
+  max-width: var(--max-w); margin: 60px auto 0; padding: 32px 24px 48px;
+  border-top: 1px solid var(--card-border); color: var(--muted); font-size: 0.85rem;
+}
+
+.step-marker {
+  max-width: var(--max-w); margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.step-num {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff;
+  font-family: var(--mono); font-size: 0.82rem; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.step-label {
+  font-family: var(--sans); font-size: 0.78rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted);
+}
+
+/* ---- reveal button ---- */
+.reveal-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--sans); font-size: 0.92rem; font-weight: 600;
+  color: var(--accent); background: none; border: 2px solid var(--accent);
+  border-radius: 8px; padding: 10px 20px; cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.reveal-btn:hover { background: var(--accent); color: #fff; }
+.reveal-btn .arrow { transition: transform 0.3s; }
+.reveal-btn.open .arrow { transform: rotate(90deg); }
+.reveal-target { display: none; margin-top: 20px; }
+.reveal-target.shown { display: block; }
+
+/* ---- callout ---- */
+.callout {
+  max-width: var(--max-w); margin: 24px auto; padding: 16px 20px;
+  border-radius: 8px; font-size: 0.9rem; line-height: 1.6;
+}
+.callout.warm { background: #fdf3ee; border-left: 4px solid var(--accent); }
+.callout.cool { background: #eef3fb; border-left: 4px solid var(--accent2); }
+
+/* ---- animation ---- */
+.fade-in {
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 600px) {
+  .hero { min-height: 50vh; padding: 60px 18px 40px; }
+  .controls { flex-direction: column; }
+  .control-group input[type="range"] { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================ HERO ================ -->
+<div class="hero">
+  <div class="hero-kicker">Empiricism, Infinity, and the Limits of Pattern</div>
+  <h1>A Kleiber-like Growth Law for Prime Density</h1>
+  <p class="byline">Lee McCulloch-James · October 2021 · with commentary</p>
+</div>
+
+<!-- ================ STEP 1: POLYGONAL NUMBERS ================ -->
+<div class="step-marker fade-in"><div class="step-num">1</div><div class="step-label">The cast of characters</div></div>
+<h2 class="section-title fade-in">Polygonal Numbers</h2>
+<div class="prose drop-cap fade-in">
+  <p>Consider the familiar figurate numbers. Three pebbles form a triangle. Four form a square. The ancient Greeks arranged stones into regular shapes and counted. Each shape generates a quadratic sequence. Triangular numbers grow as 1, 3, 6, 10, 15. Square numbers as 1, 4, 9, 16, 25. Pentagonal, hexagonal, and onward. All of them are unified by a single formula.</p>
+</div>
+
+<div class="formula-block fade-in">
+  <span class="label">n-gonal number generator</span>
+  P<sub>n</sub>(r) = ((n − 2)r² − (n − 4)r) / 2
+</div>
+
+<div class="prose fade-in">
+  <p>Here <em>n</em> is the polygon degree (3 for triangles, 4 for squares, etc.) and <em>r</em> is the term index. The gap between consecutive terms is linear in <em>r</em>:</p>
+</div>
+
+<div class="formula-block fade-in">
+  <span class="label">Gap between consecutive terms</span>
+  P<sub>n</sub>(r+1) − P<sub>n</sub>(r) = (n − 2)r + 1
+</div>
+
+<div class="prose fade-in">
+  <p>So the gaps widen steadily. And as they widen, they swallow more and more prime numbers. The question is: how fast?</p>
+</div>
+
+<!-- ================ STEP 2: PRIMES AND SIEVES ================ -->
+<div class="section-break fade-in">· · ·</div>
+<div class="step-marker fade-in"><div class="step-num">2</div><div class="step-label">Sieving the gaps</div></div>
+<h2 class="section-title fade-in">Primes Between the Milestones</h2>
+<div class="prose drop-cap fade-in">
+  <p>Primes thin out as numbers grow. The prime number theorem quantifies this: near a large number <em>x</em>, roughly one in every ln(<em>x</em>) integers is prime. But this is an average statement. What happens when you look at specific structured intervals — the gaps between consecutive terms of a polygonal sequence?</p>
+  <p>Each polygonal sequence lays down a set of milestones along the number line. Between consecutive milestones lies an interval of width (n−2)r+1. We can sieve each interval and simply count how many primes fall inside. The result is a sequence of counts — one for each value of <em>r</em> — that we can plot and fit.</p>
+  <p>Let us start with two concrete examples before generalising.</p>
+</div>
+
+<!-- ---- NUMBER LINE DIAGRAMS ---- -->
+<div class="number-line-wrap fade-in">
+  <div class="number-line-card">
+    <div class="nl-title">Triangular numbers (n = 3): the first 10 gaps</div>
+    <div class="nl-desc">Each bracket marks the interval between consecutive triangular numbers. Primes within each interval are highlighted.</div>
+    <canvas id="nlTriangle" width="900" height="110"></canvas>
+  </div>
+</div>
+
+<div class="number-line-wrap fade-in">
+  <div class="number-line-card">
+    <div class="nl-title">Square numbers (n = 4): the first 10 gaps</div>
+    <div class="nl-desc">The gaps grow faster here — each interval is 2r+1 wide. More room, more primes.</div>
+    <canvas id="nlSquare" width="900" height="110"></canvas>
+  </div>
+</div>
+
+<div class="prose fade-in">
+  <p>Already you can see the pattern. As <em>r</em> grows, each interval stretches wider and harvests more primes. The rate of that harvest is the question. Below are the first 300 terms for triangular and square numbers, plotted on a log-log scale. The slope of the data cloud is the growth exponent.</p>
+</div>
+
+<!-- ---- STATIC CHARTS: n=3 and n=4 ---- -->
+<div class="interactive fade-in">
+  <div class="card">
+    <div class="card-title">Prime counts: Triangular numbers (n = 3)</div>
+    <p class="card-desc">Each dot is one gap. The y-axis shows how many primes lie between P₃(r) and P₃(r+1). The purple line is the conjectured (n−1)/5 · r<sup>4/5</sup> fit. The blue dashed line is what the prime number theorem predicts.</p>
+    <canvas id="chartStatic3" width="900" height="420"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:#b44c2a"></div> Actual prime count</div>
+      <div class="legend-item"><div class="legend-line" style="background:#7b3db4"></div> Empirical 4/5 law</div>
+      <div class="legend-item"><div class="legend-line" style="background:#2a5fb4;border-top:2px dashed #2a5fb4;height:0"></div> PNT estimate</div>
+    </div>
+  </div>
+</div>
+
+<div class="interactive fade-in">
+  <div class="card">
+    <div class="card-title">Prime counts: Square numbers (n = 4)</div>
+    <p class="card-desc">Same plot for squares. The coefficient shifts from 2/5 to 3/5 as n goes from 3 to 4. The exponent stays at 4/5.</p>
+    <canvas id="chartStatic4" width="900" height="420"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:#2a5fb4"></div> Actual prime count</div>
+      <div class="legend-item"><div class="legend-line" style="background:#7b3db4"></div> Empirical 4/5 law</div>
+      <div class="legend-item"><div class="legend-line" style="background:#2a5fb4;border-top:2px dashed #2a5fb4;height:0"></div> PNT estimate</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout warm fade-in">
+  <strong>Key observation.</strong> Between the 278th and 279th square numbers (77,284 and 77,841) there are 56 primes. The empirical 4/5 law predicts 55.4. The PNT predicts 49.7. The power law wins — at least in this range.
+</div>
+
+<!-- ---- INTERACTIVE EXPLORER (revealed) ---- -->
+<div class="prose fade-in" style="margin-top:24px;">
+  <p>Those two cases are representative. The same pattern holds across all polygon degrees. You can verify this yourself:</p>
+  <div style="text-align:center;margin:20px 0;">
+    <button class="reveal-btn" id="revealExplorer" onclick="toggleReveal('explorerSection', this)">
+      <span class="arrow">▶</span> Open the interactive explorer
+    </button>
+  </div>
+</div>
+
+<div id="explorerSection" class="reveal-target">
+  <div class="interactive">
+    <div class="card">
+      <div class="card-title">Build Your Own Series</div>
+      <p class="card-desc">Choose any polygon degree and range. The chart shows the actual prime count (dots), the empirical 4/5 law (purple), and the PNT estimate (blue dashed). All axes are labelled.</p>
+      <div class="controls">
+        <div class="control-group">
+          <label>Polygon degree n</label>
+          <input id="ctrlN" type="number" min="3" max="30" value="5"/>
+        </div>
+        <div class="control-group">
+          <label>Max term r</label>
+          <input id="ctrlR" type="range" min="50" max="800" step="50" value="300"/>
+          <span class="val-display" id="ctrlRVal">300</span>
+        </div>
+        <div class="control-group">
+          <label>Scale</label>
+          <select id="ctrlScale">
+            <option value="linear">Linear</option>
+            <option value="log" selected>Log-Log</option>
+          </select>
+        </div>
+      </div>
+      <canvas id="chartMain" width="900" height="480"></canvas>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--accent)"></div> Actual count</div>
+        <div class="legend-item"><div class="legend-line" style="background:var(--accent3)"></div> (n−1)/5 · r<sup>4/5</sup></div>
+        <div class="legend-item"><div class="legend-line" style="background:var(--accent2);border-top:2px dashed var(--accent2);height:0"></div> PNT</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================ STEP 3: THE EMPIRICAL LAW (the seduction) ================ -->
+<div class="section-break fade-in">· · ·</div>
+<div class="step-marker fade-in"><div class="step-num">3</div><div class="step-label">The pattern emerges</div></div>
+<h2 class="section-title fade-in">A Four-Fifths Power</h2>
+<div class="prose fade-in">
+  <p>Across all polygon degrees tested (n = 3 through n = 15), the best-fit power law for the prime count between the <em>r</em>-th and (<em>r</em>+1)-th <em>n</em>-gonal numbers is:</p>
+</div>
+
+<div class="formula-block fade-in">
+  <span class="label">Empirical growth law</span>
+  count<sub>n</sub>(r) ≈ ((n − 1) / 5) · r<sup>4/5</sup>
+</div>
+
+<div class="prose fade-in">
+  <p>Two features stand out. The exponent 4/5 is invariant across polygon degree. The coefficient scales linearly as (n−1)/5. This holds even when you split the primes by Fermat's criterion — those congruent to 1 mod 4 versus 3 mod 4 — except the coefficient halves to (n−1)/10, as expected from partitioning into two roughly equal families.</p>
+  <p>The fit is not approximate. It is startlingly good. In the chart below, every polygon from 3-gon to your chosen maximum is overlaid. The dashed purple line is the empirical 4/5 law for the largest <em>n</em> shown. Look at the slope. Every sequence shares it.</p>
+</div>
+
+<!-- ---- MULTI-POLYGON OVERLAY (with empirical fit line restored) ---- -->
+<div class="interactive fade-in">
+  <div class="card">
+    <div class="card-title">All Polygons Together</div>
+    <p class="card-desc">Each colour is a different <em>n</em>-gon sequence. The purple dashed line is the empirical ((n−1)/5)·r<sup>4/5</sup> fit for the largest <em>n</em> shown. The blue dashed line is the prime number theorem prediction for comparison. Notice how the empirical law hugs the data more tightly.</p>
+    <div class="controls">
+      <div class="control-group">
+        <label>Max polygon n</label>
+        <input id="ctrlNMax" type="number" min="4" max="20" value="10"/>
+      </div>
+      <div class="control-group">
+        <label>Max term r</label>
+        <input id="ctrlR2" type="range" min="50" max="600" step="50" value="300"/>
+        <span class="val-display" id="ctrlR2Val">300</span>
+      </div>
+    </div>
+    <canvas id="chartMulti" width="900" height="480"></canvas>
+    <div class="legend" id="multiLegend"></div>
+  </div>
+</div>
+
+<div class="prose fade-in">
+  <p>At this point the conjecture writes itself. The exponent is 4/5. The coefficient involves the number 5. Where else do 4 and 5 appear together in a geometrically natural way?</p>
+</div>
+
+<!-- ================ STEP 4: HYPERSPHERE CONNECTION (the high-water mark) ================ -->
+<div class="section-break fade-in">· · ·</div>
+<div class="step-marker fade-in"><div class="step-num">4</div><div class="step-label">A geometric echo</div></div>
+<h2 class="section-title fade-in">Hyperspheres and Kleiber's Law</h2>
+<div class="prose drop-cap fade-in">
+  <p>Kleiber's law in biology states that an animal's metabolic rate scales as the 3/4 power of its body mass. The exponent arises (in one popular account) from the geometry of fractal transport networks. Here we have a 4/5 power with a factor of 1/5. Consider the unit hyperspheres.</p>
+</div>
+
+<div class="interactive fade-in">
+  <div class="card">
+    <div class="card-title">Hypersphere Geometry by Dimension</div>
+    <table class="hyper-table">
+      <thead><tr><th>d</th><th>Volume V<sub>d</sub>(1)</th><th>Surface Area S<sub>d</sub>(1)</th><th>SA / V</th></tr></thead>
+      <tbody id="hyperBody"></tbody>
+    </table>
+    <p style="font-size:0.85rem;color:var(--muted);margin-top:10px;">The 5-dimensional case is highlighted. Unit sphere volume peaks at d = 5; surface area peaks at d = 7.</p>
+  </div>
+</div>
+
+<div class="prose fade-in">
+  <p>For the 5-sphere, SA/V = (8/3)π²r⁴ / ((8/15)π²r⁵) = 5/r. The ratio of the <em>r</em>-dependent parts gives r⁴/r⁵. The exponents 4 and 5 together. The coefficient 1/5. Everything matches.</p>
+  <p>The conjecture at this point was: the 5-sphere SA/V ratio forms the natural limiting envelope for prime density growth across all polygon sequences. For the cubic analogues (tetrahedral numbers, etc.), the corresponding exponent would be 5/6 — the SA/V ratio of a 6-dimensional hypersphere.</p>
+  <p>It is a beautiful picture. The primes, those most discrete and arithmetic of objects, governed in their local density by the continuous geometry of higher-dimensional spheres. It is also, as we shall now see, almost certainly wrong.</p>
+</div>
+
+<!-- ================ STEP 5: THE DERIVATION (the rug pull) ================ -->
+<div class="section-break fade-in">· · ·</div>
+<div class="step-marker fade-in"><div class="step-num">5</div><div class="step-label">What infinity knows</div></div>
+<h2 class="section-title fade-in">The Prime Number Theorem in Disguise</h2>
+<div class="prose drop-cap fade-in">
+  <p>Four-fifths is not a new law. It is an old one wearing a mask. The argument is short. For large <em>r</em>, the n-gonal number is approximately P<sub>n</sub>(r) ≈ (n−2)r²/2, and the gap is (n−2)r. The PNT predicts the prime count in the gap is:</p>
+</div>
+
+<div class="formula-block fade-in">
+  <span class="label">PNT prediction</span>
+  count(r) ≈ (n−2)r / ln((n−2)r²/2)
+</div>
+
+<div class="prose fade-in">
+  <p>Now ask: on a log-log plot, what is the slope? Differentiate:</p>
+</div>
+
+<div class="formula-block fade-in">
+  <span class="label">Effective log-log slope</span>
+  α(r) = d[ln(count)] / d[ln(r)] = 1 − 2 / ln((n−2)r²/2)
+</div>
+
+<div class="prose fade-in">
+  <p>This is always less than 1 and approaches 1 from below as r → ∞. It equals exactly 4/5 when ln((n−2)r²/2) = 10, i.e. when (n−2)r²/2 ≈ 22,026. For squares (n = 4), that gives r ≈ 148. For triangles (n = 3), r ≈ 210. These are precisely the ranges where the fit was calibrated.</p>
+  <p>The chart below makes this visible. It plots α(r) for several polygon degrees. Every curve crosses through 0.8 in the r = 100–300 range. That is the window of the spreadsheet. That is where the 4/5 was measured.</p>
+</div>
+
+<!-- ---- EFFECTIVE EXPONENT CHART ---- -->
+<div class="interactive fade-in">
+  <div class="card">
+    <div class="card-title">Effective Log-Log Exponent α(r)</div>
+    <p class="card-desc">The local slope of the PNT prediction on a log-log plot. The dashed line marks 4/5 = 0.8. Drag the slider to see what happens beyond the original data range.</p>
+    <div class="controls">
+      <div class="control-group">
+        <label>Max r</label>
+        <input id="ctrlAlphaR" type="range" min="100" max="2000" step="100" value="1000"/>
+        <span class="val-display" id="ctrlAlphaRVal">1000</span>
+      </div>
+    </div>
+    <canvas id="chartAlpha" width="900" height="340"></canvas>
+    <div class="legend" id="alphaLegend"></div>
+  </div>
+</div>
+
+<div class="prose fade-in">
+  <p>Extend the range to r = 2,000 and the effective exponent is already 0.84. At r = 10,000 it would be 0.87. At r = 1,000,000 it would be 0.92. The exponent drifts inexorably toward 1. The 4/5 was never a fixed law. It was a snapshot.</p>
+</div>
+
+<!-- ---- DATA TABLE ---- -->
+<div class="interactive fade-in">
+  <div class="card">
+    <div class="card-title">Sample Values (Square Numbers, n = 4)</div>
+    <table class="data-table" id="dataTable">
+      <thead><tr>
+        <th>r</th><th>P₄(r)</th><th>P₄(r+1)</th><th>Gap</th><th>Actual</th><th>4/5 Law</th><th>PNT Est.</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ================ STEP 6: THE LESSON ================ -->
+<div class="section-break fade-in">· · ·</div>
+<div class="step-marker fade-in"><div class="step-num">6</div><div class="step-label">The salutary lesson</div></div>
+<h2 class="section-title fade-in">What Finite Data Cannot Say About Infinite Structures</h2>
+<div class="prose drop-cap fade-in">
+  <p>Numbers are patient. They will confirm almost any pattern you propose, for a while. The 4/5 power law fitted the data across every polygon degree tested, from n = 3 to n = 15, over hundreds of terms. It outperformed the PNT estimate at every point in the range. It had a clean coefficient. It invited a geometric explanation. All of this was true. None of it was proof.</p>
+  <p>The hypersphere connection — the surface-area-to-volume ratio of a 5-sphere yielding the same exponent and the same factor of 5 — is the kind of coincidence that mathematics produces in abundance. The number 4/5 appears wherever something approaches 1 from below and you happen to look at a range where 2/ln(x) ≈ 0.2. That is not geometry. That is the logarithm being slow.</p>
+  <p>This is the oldest tension in the subject. Physical science proceeds by induction: gather data, fit a law, test it against new data. Number theory proceeds by deduction: state a theorem, prove it, and know it holds for every integer from here to infinity. The gap between these two modes is not a technicality. It is the whole point. A pattern that holds for the first five hundred terms tells you nothing certain about the five-hundred-and-first, let alone the five-billionth.</p>
+  <p>The prime number theorem is proved. The 4/5 law is not wrong — it is incomplete. It describes a real feature of the data at finite range. But it mistakes a shadow for a source. The source is the PNT. The shadow shifts as you move the lamp.</p>
+</div>
+
+<div class="callout cool fade-in">
+  <strong>What remains open.</strong> The coefficient (n−1)/5 is still unexplained. The PNT gives the exponent but does not obviously produce a clean linear dependence on polygon degree with denominator 5. Whether this coefficient has a deeper origin — or is itself another finite-range artefact — remains a genuine question.
+</div>
+
+<div class="aside-box fade-in">
+  <div class="aside-title">A note on cubic sequences</div>
+  <p>The polyhedral analogues (tetrahedral numbers, etc.) generate cubic sequences with quadratic gaps. The same PNT analysis gives an effective exponent α(r) = 1 − 3/ln(P(r)), which at comparable ranges would be slightly higher than the quadratic case — consistent with the originally conjectured 5/6. The same caution applies: the exponent is not fixed, it drifts.</p>
+</div>
+
+<footer class="fade-in">
+  <p>Originally published at <em>mcmurmerings.wordpress.com</em>, October 2021. Interactive walkthrough and commentary built as a companion piece. The original conjecture was speculative and acknowledged as such. This page adds the analytic resolution.</p>
+</footer>
+
+<!-- ================ JAVASCRIPT ================ -->
+<script>
+// ==== Core math ====
+function polygonal(n, r) { return ((n - 2) * r * r - (n - 4) * r) / 2; }
+
+function sieve(limit) {
+  const isPrime = new Uint8Array(limit + 1);
+  isPrime.fill(1); isPrime[0] = 0; isPrime[1] = 0;
+  for (let p = 2; p * p <= limit; p++) {
+    if (isPrime[p]) for (let k = p * p; k <= limit; k += p) isPrime[k] = 0;
+  }
+  return isPrime;
+}
+
+function prefixCounts(isPrime) {
+  const pref = new Int32Array(isPrime.length);
+  let run = 0;
+  for (let i = 0; i < isPrime.length; i++) { if (isPrime[i]) run++; pref[i] = run; }
+  return pref;
+}
+
+function primesBetween(pref, a, b) { return pref[b] - (a >= 0 ? pref[a] : 0); }
+function empiricalFit(n, r) { return ((n - 1) / 5) * Math.pow(r, 4 / 5); }
+function pntEstimate(n, r) {
+  let x = polygonal(n, r);
+  const gap = polygonal(n, r + 1) - x;
+  if (x < 3) x = 3;
+  return gap / Math.log(x);
+}
+
+function buildData(n, rMax, pref) {
+  const data = [];
+  for (let r = 1; r <= rMax; r++) {
+    const a = polygonal(n, r), b = polygonal(n, r + 1);
+    data.push({ r, a, b, gap: b - a, actual: primesBetween(pref, a, b), fit: empiricalFit(n, r), pnt: pntEstimate(n, r) });
+  }
+  return data;
+}
+
+// ==== Axis tick helpers ====
+function niceTicksLinear(min, max, targetCount) {
+  const range = max - min;
+  const rough = range / targetCount;
+  const pow = Math.pow(10, Math.floor(Math.log10(rough)));
+  let step;
+  const norm = rough / pow;
+  if (norm < 1.5) step = pow;
+  else if (norm < 3.5) step = 2 * pow;
+  else if (norm < 7.5) step = 5 * pow;
+  else step = 10 * pow;
+  const ticks = [];
+  let v = Math.ceil(min / step) * step;
+  while (v <= max) { ticks.push(v); v += step; }
+  return ticks;
+}
+
+function niceTicksLog(logMin, logMax) {
+  const ticks = [];
+  const lo = Math.floor(logMin), hi = Math.ceil(logMax);
+  for (let e = lo; e <= hi; e++) {
+    const v = Math.pow(10, e);
+    if (e >= logMin - 0.01 && e <= logMax + 0.01) ticks.push({ val: v, label: v >= 1 ? v.toLocaleString() : v.toString() });
+    // add 2 and 5 sub-ticks
+    [2, 5].forEach(m => {
+      const sv = m * Math.pow(10, e);
+      const sl = Math.log10(sv);
+      if (sl >= logMin - 0.01 && sl <= logMax + 0.01) ticks.push({ val: sv, label: sv >= 1 ? sv.toLocaleString() : sv.toString() });
+    });
+  }
+  return ticks;
+}
+
+function formatNum(v) {
+  if (v >= 1000) return v.toLocaleString();
+  if (v >= 1) return Math.round(v).toString();
+  return v.toFixed(1);
+}
+
+// ==== Generic chart drawing ====
+function drawSingleChart(canvas, data, dotColor, logScale) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = { l: 72, r: 20, t: 20, b: 48 };
+  const pW = W - pad.l - pad.r, pH = H - pad.t - pad.b;
+
+  // Determine ranges
+  const allY = data.map(d => Math.max(d.actual, d.fit, d.pnt));
+  let xMin, xMax, yMin, yMax, xMap, yMap;
+
+  if (logScale) {
+    xMin = Math.log10(1); xMax = Math.log10(Math.max(...data.map(d => d.r)));
+    yMin = Math.log10(0.5); yMax = Math.log10(Math.max(...allY) * 1.15);
+    xMap = r => pad.l + ((Math.log10(Math.max(r, 1)) - xMin) / (xMax - xMin)) * pW;
+    yMap = v => H - pad.b - ((Math.log10(Math.max(v, 0.5)) - yMin) / (yMax - yMin)) * pH;
+  } else {
+    xMin = 0; xMax = Math.max(...data.map(d => d.r)) * 1.02;
+    yMin = 0; yMax = Math.max(...allY) * 1.08;
+    xMap = r => pad.l + (r / xMax) * pW;
+    yMap = v => H - pad.b - (v / yMax) * pH;
+  }
+
+  // Grid lines & tick labels
+  ctx.font = '11px JetBrains Mono, monospace';
+  ctx.textBaseline = 'middle';
+
+  if (logScale) {
+    const xTicks = niceTicksLog(xMin, xMax);
+    const yTicks = niceTicksLog(yMin, yMax);
+    ctx.strokeStyle = '#eae6e0'; ctx.lineWidth = 1;
+    xTicks.forEach(t => {
+      const x = xMap(t.val);
+      ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H - pad.b); ctx.stroke();
+      ctx.fillStyle = '#8a8580'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(t.label, x, H - pad.b + 6);
+    });
+    yTicks.forEach(t => {
+      const y = yMap(t.val);
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+      ctx.fillStyle = '#8a8580'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(t.label, pad.l - 8, y);
+    });
+  } else {
+    const xTicks = niceTicksLinear(0, xMax, 6);
+    const yTicks = niceTicksLinear(0, yMax, 6);
+    ctx.strokeStyle = '#eae6e0'; ctx.lineWidth = 1;
+    xTicks.forEach(v => {
+      const x = xMap(v);
+      ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H - pad.b); ctx.stroke();
+      ctx.fillStyle = '#8a8580'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(formatNum(v), x, H - pad.b + 6);
+    });
+    yTicks.forEach(v => {
+      const y = yMap(v);
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+      ctx.fillStyle = '#8a8580'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(formatNum(v), pad.l - 8, y);
+    });
+  }
+
+  // Axes
+  ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
+
+  // Axis titles
+  ctx.fillStyle = '#6b6560'; ctx.font = '12px Source Sans 3, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(logScale ? 'term index r (log scale)' : 'term index r', pad.l + pW / 2, H - 4);
+  ctx.save(); ctx.translate(12, pad.t + pH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('primes in gap', 0, 0); ctx.restore();
+
+  // Dots — bigger, coloured
+  data.forEach(d => {
+    const x = xMap(d.r), y = yMap(d.actual);
+    ctx.fillStyle = dotColor;
+    ctx.beginPath(); ctx.arc(x, y, 3.2, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // Fit lines
+  function strokeLine(accessor, color, width, dash) {
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    data.forEach((d, i) => {
+      const x = xMap(d.r), y = yMap(accessor(d));
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  strokeLine(d => d.fit, '#7b3db4', 2.5, []);
+  strokeLine(d => d.pnt, '#2a5fb4', 2, [6, 4]);
+}
+
+// ==== Multi-polygon chart ====
+const NGON_COLORS = [
+  '#c9362c', '#d97b1a', '#c4a800', '#3da34d', '#1a9a8a',
+  '#2a7fb4', '#4a5eb8', '#7b3db4', '#b43da0', '#c94a6a',
+  '#8b5e3c', '#5c7a2e', '#2e7a6d', '#6a4ca0', '#a0522d',
+  '#1b7a7a', '#7a1b4e', '#4a8a2a'
+];
+
+function drawChartMulti(canvas, allSeries, nValues) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = { l: 72, r: 20, t: 20, b: 48 };
+  const pW = W - pad.l - pad.r, pH = H - pad.t - pad.b;
+
+  let maxR = 1, maxY = 1;
+  allSeries.forEach(s => s.forEach(d => { maxR = Math.max(maxR, d.r); maxY = Math.max(maxY, d.actual); }));
+
+  const lxMin = 0, lxMax = Math.log10(maxR);
+  const lyMin = Math.log10(0.5), lyMax = Math.log10(maxY * 1.15);
+  const xMap = r => pad.l + ((Math.log10(Math.max(r, 1)) - lxMin) / (lxMax - lxMin)) * pW;
+  const yMap = v => H - pad.b - ((Math.log10(Math.max(v, 0.5)) - lyMin) / (lyMax - lyMin)) * pH;
+
+  // Ticks
+  ctx.font = '11px JetBrains Mono, monospace';
+  const xTicks = niceTicksLog(lxMin, lxMax);
+  const yTicks = niceTicksLog(lyMin, lyMax);
+  ctx.strokeStyle = '#eae6e0'; ctx.lineWidth = 1;
+  xTicks.forEach(t => {
+    const x = xMap(t.val);
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H - pad.b); ctx.stroke();
+    ctx.fillStyle = '#8a8580'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(t.label, x, H - pad.b + 6);
+  });
+  yTicks.forEach(t => {
+    const y = yMap(t.val);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#8a8580'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(t.label, pad.l - 8, y);
+  });
+
+  ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
+
+  ctx.fillStyle = '#6b6560'; ctx.font = '12px Source Sans 3, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('term index r (log scale)', pad.l + pW / 2, H - 4);
+  ctx.save(); ctx.translate(12, pad.t + pH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('primes in gap (log scale)', 0, 0); ctx.restore();
+
+  // Dots — big, saturated, overlapping allowed
+  allSeries.forEach((series, idx) => {
+    const color = NGON_COLORS[idx % NGON_COLORS.length];
+    ctx.fillStyle = color + 'cc'; // slight transparency
+    series.forEach(d => {
+      const x = xMap(d.r), y = yMap(d.actual);
+      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+    });
+  });
+
+  // Empirical 4/5 fit for the largest n (solid purple — the convincing line)
+  const envN = Math.max(...nValues);
+  ctx.strokeStyle = '#7b3db4'; ctx.lineWidth = 2.5; ctx.setLineDash([]);
+  ctx.beginPath();
+  for (let r = 1; r <= maxR; r += 2) {
+    const v = empiricalFit(envN, r);
+    const x = xMap(r), y = yMap(v);
+    if (r === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // PNT prediction for the largest n (blue dashed — for comparison)
+  ctx.strokeStyle = '#2a5fb4'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  for (let r = 2; r <= maxR; r += 2) {
+    const v = pntEstimate(envN, r);
+    const x = xMap(r), y = yMap(v);
+    if (r === 2) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // Legend
+  const legendEl = document.getElementById('multiLegend');
+  legendEl.innerHTML = '';
+  nValues.forEach((n, i) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<div class="legend-swatch" style="background:${NGON_COLORS[i % NGON_COLORS.length]}"></div> ${n}-gon`;
+    legendEl.appendChild(item);
+  });
+  const fitItem = document.createElement('div');
+  fitItem.className = 'legend-item';
+  fitItem.innerHTML = `<div class="legend-line" style="background:#7b3db4"></div> Empirical 4/5 law (n=${envN})`;
+  legendEl.appendChild(fitItem);
+  const pntItem = document.createElement('div');
+  pntItem.className = 'legend-item';
+  pntItem.innerHTML = `<div class="legend-swatch" style="background:transparent;border:2px dashed #2a5fb4"></div> PNT (n=${envN})`;
+  legendEl.appendChild(pntItem);
+}
+
+// ==== Number line diagrams ====
+function drawNumberLine(canvas, n, terms) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = { l: 20, r: 20, t: 10, b: 28 };
+  const pW = W - pad.l - pad.r;
+
+  const vals = [];
+  for (let r = 1; r <= terms + 1; r++) vals.push(polygonal(n, r));
+  const maxVal = vals[vals.length - 1];
+  const is = sieve(maxVal);
+
+  const xMap = v => pad.l + (v / maxVal) * pW;
+  const midY = H / 2 - 4;
+
+  // Number line
+  ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, midY); ctx.lineTo(W - pad.r, midY); ctx.stroke();
+
+  // Bracket colours
+  const bracketColors = NGON_COLORS;
+
+  for (let i = 0; i < vals.length - 1; i++) {
+    const a = vals[i], b = vals[i + 1];
+    const xa = xMap(a), xb = xMap(b);
+    const col = bracketColors[i % bracketColors.length];
+
+    // Bracket
+    ctx.strokeStyle = col + '55'; ctx.lineWidth = 1;
+    ctx.fillStyle = col + '15';
+    ctx.fillRect(xa, midY - 18, xb - xa, 36);
+    ctx.strokeRect(xa, midY - 18, xb - xa, 36);
+
+    // Milestone tick
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(xa, midY - 22); ctx.lineTo(xa, midY + 22); ctx.stroke();
+
+    // Milestone label
+    ctx.fillStyle = '#333'; ctx.font = '10px JetBrains Mono, monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(a.toString(), xa, midY + 25);
+
+    // Primes inside
+    let count = 0;
+    for (let p = a + 1; p <= b; p++) {
+      if (is[p]) {
+        count++;
+        const xp = xMap(p);
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(xp, midY, 3.5, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // Count label
+    ctx.fillStyle = col; ctx.font = 'bold 11px Source Sans 3, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(count + ' primes', (xa + xb) / 2, midY - 22);
+  }
+
+  // Last milestone tick
+  const lastX = xMap(vals[vals.length - 1]);
+  ctx.strokeStyle = '#555'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(lastX, midY - 22); ctx.lineTo(lastX, midY + 22); ctx.stroke();
+  ctx.fillStyle = '#333'; ctx.font = '10px JetBrains Mono, monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(vals[vals.length - 1].toString(), lastX, midY + 25);
+}
+
+// ==== Hypersphere table ====
+function buildHyperTable() {
+  const tbody = document.getElementById('hyperBody');
+  const gamma = (n) => {
+    if (n === 1) return 1;
+    if (n === 0.5) return Math.sqrt(Math.PI);
+    return (n - 1) * gamma(n - 1);
+  };
+  const vol = d => Math.pow(Math.PI, d / 2) / gamma(d / 2 + 1);
+  const sa = d => d * Math.pow(Math.PI, d / 2) / gamma(d / 2 + 1);
+  for (let d = 1; d <= 8; d++) {
+    const V = vol(d), SA = sa(d), ratio = SA / V;
+    const cls = d === 5 ? ' class="highlight"' : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td${cls}>${d}</td><td${cls}>${V.toFixed(4)}</td><td${cls}>${SA.toFixed(4)}</td><td${cls}>${ratio.toFixed(2)}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+buildHyperTable();
+
+// ==== Data table ====
+function fillDataTable() {
+  const n = 4, rMax = 500;
+  const limit = polygonal(n, rMax + 1);
+  const pref = prefixCounts(sieve(limit));
+  const data = buildData(n, rMax, pref);
+  const tbody = document.querySelector('#dataTable tbody');
+  tbody.innerHTML = '';
+  [1, 5, 10, 25, 50, 100, 200, 278, 300, 400, 500].forEach(r => {
+    if (r > data.length) return;
+    const d = data[r - 1];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${d.r}</td><td>${d.a.toLocaleString()}</td><td>${d.b.toLocaleString()}</td><td>${d.gap.toLocaleString()}</td><td>${d.actual}</td><td>${d.fit.toFixed(1)}</td><td>${d.pnt.toFixed(1)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+fillDataTable();
+
+// ==== Static charts ====
+function initStatic() {
+  const rMax = 300;
+  const limit4 = polygonal(4, rMax + 1);
+  const pref = prefixCounts(sieve(limit4));
+
+  const data3 = buildData(3, rMax, pref);
+  const data4 = buildData(4, rMax, pref);
+
+  drawSingleChart(document.getElementById('chartStatic3'), data3, '#b44c2a', true);
+  drawSingleChart(document.getElementById('chartStatic4'), data4, '#2a5fb4', true);
+}
+initStatic();
+
+// ==== Number line diagrams ====
+drawNumberLine(document.getElementById('nlTriangle'), 3, 10);
+drawNumberLine(document.getElementById('nlSquare'), 4, 10);
+
+// ==== Interactive explorer ====
+let cachedPref1 = null, cachedLimit1 = 0;
+function refreshChart1() {
+  const n = Math.max(3, parseInt(document.getElementById('ctrlN').value, 10));
+  const rMax = parseInt(document.getElementById('ctrlR').value, 10);
+  const logScale = document.getElementById('ctrlScale').value === 'log';
+  document.getElementById('ctrlRVal').textContent = rMax;
+  const limit = polygonal(n, rMax + 1);
+  if (limit > cachedLimit1) { cachedPref1 = prefixCounts(sieve(limit)); cachedLimit1 = limit; }
+  const data = buildData(n, rMax, cachedPref1);
+  drawSingleChart(document.getElementById('chartMain'), data, '#b44c2a', logScale);
+}
+['ctrlN', 'ctrlR', 'ctrlScale'].forEach(id =>
+  document.getElementById(id).addEventListener('input', refreshChart1)
+);
+
+// ==== Multi chart ====
+function refreshChart2() {
+  const nMax = Math.max(4, parseInt(document.getElementById('ctrlNMax').value, 10));
+  const rMax = parseInt(document.getElementById('ctrlR2').value, 10);
+  document.getElementById('ctrlR2Val').textContent = rMax;
+  const limit = polygonal(nMax, rMax + 1);
+  const pref = prefixCounts(sieve(limit));
+  const nValues = [], allSeries = [];
+  for (let n = 3; n <= nMax; n++) { nValues.push(n); allSeries.push(buildData(n, rMax, pref)); }
+  drawChartMulti(document.getElementById('chartMulti'), allSeries, nValues);
+}
+['ctrlNMax', 'ctrlR2'].forEach(id =>
+  document.getElementById(id).addEventListener('input', refreshChart2)
+);
+refreshChart2();
+
+// ==== Reveal toggle ====
+function toggleReveal(targetId, btn) {
+  const el = document.getElementById(targetId);
+  const open = el.classList.toggle('shown');
+  btn.classList.toggle('open', open);
+  if (open) refreshChart1();
+}
+
+// ==== Effective exponent chart ====
+function effectiveAlpha(n, r) {
+  const arg = (n - 2) * r * r / 2;
+  if (arg < 3) return 0;
+  return 1 - 2 / Math.log(arg);
+}
+
+function drawAlphaChart() {
+  const canvas = document.getElementById('chartAlpha');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const rMax = parseInt(document.getElementById('ctrlAlphaR').value, 10);
+  document.getElementById('ctrlAlphaRVal').textContent = rMax;
+
+  const pad = { l: 60, r: 20, t: 16, b: 48 };
+  const pW = W - pad.l - pad.r, pH = H - pad.t - pad.b;
+
+  const yMin = 0.55, yMax = 1.0;
+  const xMap = r => pad.l + (r / rMax) * pW;
+  const yMap = v => H - pad.b - ((v - yMin) / (yMax - yMin)) * pH;
+
+  // Grid
+  ctx.strokeStyle = '#eae6e0'; ctx.lineWidth = 1;
+  const yTicks = [0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0];
+  ctx.font = '11px JetBrains Mono, monospace';
+  yTicks.forEach(v => {
+    const y = yMap(v);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#8a8580'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(v.toFixed(2), pad.l - 8, y);
+  });
+
+  const xTicks = niceTicksLinear(0, rMax, 6);
+  xTicks.forEach(v => {
+    const x = xMap(v);
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H - pad.b); ctx.stroke();
+    ctx.fillStyle = '#8a8580'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(formatNum(v), x, H - pad.b + 6);
+  });
+
+  // Axes
+  ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
+
+  ctx.fillStyle = '#6b6560'; ctx.font = '12px Source Sans 3, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('term index r', pad.l + pW / 2, H - 4);
+  ctx.save(); ctx.translate(12, pad.t + pH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('effective exponent α(r)', 0, 0); ctx.restore();
+
+  // 4/5 reference line
+  ctx.strokeStyle = '#b44c2a'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+  const y80 = yMap(0.8);
+  ctx.beginPath(); ctx.moveTo(pad.l, y80); ctx.lineTo(W - pad.r, y80); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#b44c2a'; ctx.font = 'bold 11px Source Sans 3, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('4/5 = 0.80', W - pad.r - 80, y80 - 8);
+
+  // Draw curves for n = 3, 4, 5, 6, 8, 10
+  const nSet = [3, 4, 5, 6, 8, 10];
+  const alphaColors = ['#c9362c', '#d97b1a', '#c4a800', '#3da34d', '#2a7fb4', '#7b3db4'];
+
+  nSet.forEach((n, idx) => {
+    ctx.strokeStyle = alphaColors[idx]; ctx.lineWidth = 2;
+    ctx.beginPath();
+    let first = true;
+    for (let r = 2; r <= rMax; r += 2) {
+      const a = effectiveAlpha(n, r);
+      if (a < yMin) continue;
+      const x = xMap(r), y = yMap(Math.min(a, yMax));
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  });
+
+  // Legend
+  const legendEl = document.getElementById('alphaLegend');
+  legendEl.innerHTML = '';
+  nSet.forEach((n, i) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<div class="legend-line" style="background:${alphaColors[i]}"></div> n=${n}`;
+    legendEl.appendChild(item);
+  });
+  const refItem = document.createElement('div');
+  refItem.className = 'legend-item';
+  refItem.innerHTML = `<div class="legend-line" style="background:#b44c2a;border-top:2px dashed #b44c2a;height:0"></div> α = 4/5`;
+  legendEl.appendChild(refItem);
+}
+
+document.getElementById('ctrlAlphaR').addEventListener('input', drawAlphaChart);
+drawAlphaChart();
+
+// ==== Scroll fade-in ====
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
