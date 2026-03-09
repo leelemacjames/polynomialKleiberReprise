@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>A Cautionary Tale in Four-Fifths</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+:root {
+  --bg: #faf8f4;
+  --text: #1a1a1a;
+  --muted: #6b6560;
+  --accent: #b44c2a;
+  --accent2: #2a5fb4;
+  --accent3: #7b3db4;
+  --card-bg: #fff;
+  --card-border: #e8e4de;
+  --formula-bg: #f0ece6;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Source Sans 3', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --max-w: 740px;
+  --wide: 960px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--sans); font-size: 17px; line-height: 1.75;
+  color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased;
+}
+
+/* ---- paper layout ---- */
+.paper { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+.wide-block { max-width: var(--wide); margin-left: auto; margin-right: auto; padding: 0 24px; }
+
+/* ---- title block ---- */
+.title-block {
+  text-align: center; padding: 64px 24px 40px;
+  max-width: var(--max-w); margin: 0 auto;
+}
+.title-block h1 {
+  font-family: var(--serif); font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+  font-weight: 600; line-height: 1.2; color: var(--accent); margin-bottom: 10px;
+}
+.title-block .subtitle {
+  font-family: var(--serif); font-size: 1.15rem; font-weight: 400;
+  color: var(--muted); font-style: italic; margin-bottom: 14px;
+}
+.title-block .authors { font-size: 0.95rem; color: var(--muted); }
+
+/* ---- abstract ---- */
+.abstract {
+  max-width: var(--max-w); margin: 0 auto 32px;
+  padding: 20px 28px; background: var(--formula-bg);
+  border-radius: 8px; font-size: 0.93rem; line-height: 1.65;
+}
+.abstract strong { color: var(--accent); }
+
+/* ---- TOC ---- */
+.toc {
+  max-width: var(--max-w); margin: 0 auto 40px; padding: 0 24px;
+}
+.toc-title {
+  font-family: var(--serif); font-size: 1.2rem; font-weight: 600;
+  color: var(--accent); margin-bottom: 8px;
+}
+.toc ol { padding-left: 1.5em; }
+.toc li { margin-bottom: 3px; font-size: 0.92rem; }
+.toc a { color: var(--accent2); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+
+/* ---- sections ---- */
+h2.sec {
+  font-family: var(--serif); font-size: 1.7rem; font-weight: 600;
+  color: var(--accent); margin: 48px 0 16px; padding-top: 16px;
+  border-top: 1px solid var(--card-border);
+}
+h3.subsec {
+  font-family: var(--serif); font-size: 1.25rem; font-weight: 600;
+  color: #7a4a35; margin: 28px 0 10px;
+}
+.paper p { margin-bottom: 1.3em; }
+
+/* ---- drop cap ---- */
+.drop-cap::first-letter {
+  font-family: var(--serif); font-size: 3.2em; float: left;
+  line-height: 0.82; margin: 0.04em 0.1em 0 0; color: var(--accent); font-weight: 600;
+}
+
+/* ---- numbered environments ---- */
+.env {
+  margin: 20px 0; padding: 14px 18px; border-radius: 6px;
+  font-size: 0.95rem; line-height: 1.65;
+}
+.env-def { background: var(--formula-bg); border-left: 4px solid var(--accent); }
+.env-prop { background: #f6f0fb; border-left: 4px solid var(--accent3); }
+.env-conj { background: #fdf3ee; border-left: 4px solid var(--accent); }
+.env-exer { background: #eef3fb; border-left: 4px solid var(--accent2); }
+.env-remark { background: #f5f5f0; border-left: 4px solid var(--muted); }
+.env-caution { background: #fef0ec; border-left: 4px solid #c0392b; }
+.env-key { background: var(--formula-bg); border-left: 4px solid var(--accent3); }
+
+.env-label {
+  font-family: var(--sans); font-weight: 700; font-size: 0.82rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 6px; display: block;
+}
+.env-def .env-label { color: var(--accent); }
+.env-prop .env-label { color: var(--accent3); }
+.env-conj .env-label { color: var(--accent); }
+.env-exer .env-label { color: var(--accent2); }
+.env-remark .env-label { color: var(--muted); }
+.env-caution .env-label { color: #c0392b; }
+.env-key .env-label { color: var(--accent3); }
+
+/* ---- display math ---- */
+.display-math {
+  margin: 18px 0; padding: 14px 20px;
+  background: var(--formula-bg); border-radius: 6px;
+  overflow-x: auto; text-align: center;
+}
+.display-math .eq-label {
+  float: right; font-family: var(--mono); font-size: 0.8rem; color: var(--muted);
+}
+
+/* ---- table ---- */
+.paper table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  font-size: 0.9rem;
+}
+.paper th, .paper td {
+  padding: 8px 12px; text-align: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.paper th {
+  font-weight: 600; font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted);
+  border-bottom: 2px solid var(--card-border);
+}
+.paper .hl { background: rgba(180,76,42,0.08); }
+
+/* ---- interactive cards ---- */
+.card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 14px; padding: 24px; margin: 24px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.card-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+.card-desc { font-size: 0.88rem; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+.controls { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; align-items: flex-end; }
+.control-group label {
+  display: block; font-size: 0.75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 3px;
+}
+.control-group input[type="range"] { width: 160px; accent-color: var(--accent); }
+.control-group select, .control-group input[type="number"] {
+  font-family: var(--mono); font-size: 0.85rem; padding: 3px 6px;
+  border: 1px solid var(--card-border); border-radius: 5px; background: var(--bg); width: 72px;
+}
+.val-display { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); margin-left: 4px; }
+canvas { width: 100%; max-width: 100%; border-radius: 8px; background: #fff; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 0.78rem; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.legend-line { width: 18px; height: 3px; flex-shrink: 0; border-radius: 2px; }
+
+/* ---- section break ---- */
+.sep { text-align: center; color: var(--muted); font-size: 1.2rem; letter-spacing: 0.3em; margin: 36px 0; }
+
+/* ---- footer ---- */
+footer {
+  max-width: var(--max-w); margin: 48px auto 0; padding: 24px 24px 40px;
+  border-top: 1px solid var(--card-border); color: var(--muted); font-size: 0.82rem;
+}
+
+/* ---- responsive ---- */
+@media (max-width: 600px) {
+  .title-block { padding: 40px 18px 28px; }
+  .controls { flex-direction: column; }
+  .control-group input[type="range"] { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!--                        TITLE BLOCK                           -->
+<!-- ============================================================ -->
+<div class="title-block">
+  <h1>A Cautionary Tale in Four-Fifths</h1>
+  <div class="subtitle">Prime Density, Polygonal Numbers, and What Finite Data Cannot Say About Infinite Structures</div>
+  <div class="authors">Lee McCulloch-James &middot; 2021 / 2026</div>
+</div>
+
+<div class="abstract">
+  <strong>Abstract.</strong> The number of primes lying between consecutive terms of polygonal number sequences appears, over finite ranges, to follow a clean power law with exponent $\frac{4}{5}$. The fit is startlingly good. It invites a geometric explanation involving hypersphere surface-area-to-volume ratios. This paper walks through the empirical discovery, lets the reader feel the seduction of the pattern, and then shows &mdash; in a short analytic argument &mdash; that the $\frac{4}{5}$ is the prime number theorem wearing a finite-range disguise. The exponent drifts inexorably toward 1 as the range extends. The pedagogical goal is twofold: to teach the analytic techniques (logarithmic differentiation, asymptotic expansion, effective exponents) that unmask such finite-range artefacts, and to illustrate the fundamental tension between empirical pattern-finding and the demands of mathematical proof. Extensions to higher-dimensional figurate sequences are treated explicitly.
+</div>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#s1">Polygonal Numbers and Their Gaps</a></li>
+    <li><a href="#s2">The Empirical Discovery</a></li>
+    <li><a href="#s3">The Geometric Seduction</a></li>
+    <li><a href="#s4">The Prime Number Theorem in Disguise</a></li>
+    <li><a href="#s5">Higher-Dimensional Extensions</a></li>
+    <li><a href="#s6">What Remains Open</a></li>
+    <li><a href="#s7">Epistemological Coda</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<!--               1. POLYGONAL NUMBERS AND THEIR GAPS            -->
+<!-- ============================================================ -->
+<div class="paper">
+<h2 class="sec" id="s1">1. Polygonal Numbers and Their Gaps</h2>
+
+<h3 class="subsec">1.1 The unified generator</h3>
+<p class="drop-cap">The figurate numbers of the ancient Greeks are generated by arranging pebbles into regular polygons. Triangular numbers (1, 3, 6, 10, 15, ...), square numbers (1, 4, 9, 16, 25, ...), pentagonal numbers (1, 5, 12, 22, 35, ...), and onward, are all special cases of a single quadratic formula.</p>
+
+<div class="env env-def">
+  <span class="env-label">Definition 1.1 &mdash; Polygonal number</span>
+  The $r$-th $n$-gonal number, for $n \geq 3$ and $r \geq 1$, is
+  $$P_n(r) = \frac{(n-2)\,r^2 - (n-4)\,r}{2}.$$
+</div>
+
+<div class="env env-exer">
+  <span class="env-label">Exercise 1.1</span>
+  Verify that this gives $P_3(r) = \frac{r(r+1)}{2}$ (triangular), $P_4(r) = r^2$ (square), and $P_6(r) = r(2r-1)$ (hexagonal). Show that $P_6(r) = P_3(2r-1)$: every hexagonal number is triangular.
+</div>
+
+<h3 class="subsec">1.2 The gap between consecutive terms</h3>
+<p>The gap between consecutive $n$-gonal numbers is linear in $r$:</p>
+
+<div class="display-math">
+  <span class="eq-label">(1)</span>
+  $$P_n(r+1) - P_n(r) = (n-2)\,r + 1.$$
+</div>
+
+<p>This is the key structural fact. The intervals widen at a steady rate. As they widen, they contain more primes. The question: <em>how does the prime count grow as a function of $r$?</em></p>
+</div>
+
+<!-- NUMBER LINE DIAGRAMS -->
+<div class="wide-block">
+  <div class="card">
+    <div class="card-title">Triangular numbers ($n=3$): the first 10 gaps</div>
+    <div class="card-desc">Each bracket marks an interval between consecutive triangular numbers. Primes are the coloured dots.</div>
+    <canvas id="nlTriangle" width="900" height="110"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Square numbers ($n=4$): the first 10 gaps</div>
+    <div class="card-desc">Gaps grow as $2r+1$. More room, more primes.</div>
+    <canvas id="nlSquare" width="900" height="110"></canvas>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--               2. THE EMPIRICAL DISCOVERY                     -->
+<!-- ============================================================ -->
+<div class="paper">
+<h2 class="sec" id="s2">2. The Empirical Discovery</h2>
+
+<h3 class="subsec">2.1 Counting primes in the gaps</h3>
+<p>For each $n$-gonal sequence and each term index $r$, define</p>
+
+<div class="display-math">
+  <span class="eq-label">(2)</span>
+  $$c_n(r) = \pi\!\bigl(P_n(r+1)\bigr) - \pi\!\bigl(P_n(r)\bigr),$$
+</div>
+
+<p>where $\pi(x)$ is the prime counting function. Computing $c_n(r)$ for $r = 1, \ldots, 500$ and $n = 3, \ldots, 15$ is a straightforward sieving exercise. The results, on a log-log scale, are striking.</p>
+</div>
+
+<!-- STATIC CHARTS n=3, n=4 -->
+<div class="wide-block">
+  <div class="card">
+    <div class="card-title">Prime counts: Triangular numbers ($n=3$)</div>
+    <div class="card-desc">Each dot is one gap. Purple line: empirical $\frac{n-1}{5} \cdot r^{4/5}$. Blue dashed: PNT estimate.</div>
+    <canvas id="chartStatic3" width="900" height="400"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:#b44c2a"></div> Actual</div>
+      <div class="legend-item"><div class="legend-line" style="background:#7b3db4"></div> 4/5 law</div>
+      <div class="legend-item"><div class="legend-line" style="background:#2a5fb4;height:0;border-top:2px dashed #2a5fb4"></div> PNT</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Prime counts: Square numbers ($n=4$)</div>
+    <div class="card-desc">Coefficient shifts from $\frac{2}{5}$ to $\frac{3}{5}$. Exponent stays at $\frac{4}{5}$.</div>
+    <canvas id="chartStatic4" width="900" height="400"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:#2a5fb4"></div> Actual</div>
+      <div class="legend-item"><div class="legend-line" style="background:#7b3db4"></div> 4/5 law</div>
+      <div class="legend-item"><div class="legend-line" style="background:#2a5fb4;height:0;border-top:2px dashed #2a5fb4"></div> PNT</div>
+    </div>
+  </div>
+</div>
+
+<div class="paper">
+<h3 class="subsec">2.2 The four-fifths law</h3>
+
+<div class="env env-key">
+  <span class="env-label">Empirical Growth Law</span>
+  $$c_n(r) \approx \frac{n-1}{5}\,r^{4/5}.$$
+</div>
+
+<p>Two features stand out. First, the exponent $\frac{4}{5}$ is <strong>invariant</strong> across polygon degree $n$. Second, the coefficient $\frac{n-1}{5}$ scales <strong>linearly</strong> in $n$, with denominator 5.</p>
+
+<p>The fit outperforms the PNT estimate at every point. Between the 278th and 279th square numbers (77,284 and 77,841) there are 56 primes. The empirical law predicts 55.4. The PNT predicts 49.7.</p>
+
+<p>The pattern holds even under Fermat's $4k$ splitting: primes $\equiv 1 \pmod{4}$ vs $\equiv 3 \pmod{4}$. The coefficient halves to $\frac{n-1}{10}$.</p>
+</div>
+
+<!-- MULTI-POLYGON CHART -->
+<div class="wide-block">
+  <div class="card">
+    <div class="card-title">All Polygons Together</div>
+    <div class="card-desc">Each colour is a different $n$-gon. Purple line: empirical 4/5 law for the largest $n$ shown. Blue dashed: PNT for the largest $n$.</div>
+    <div class="controls">
+      <div class="control-group"><label>Max polygon $n$</label><input id="ctrlNMax" type="number" min="4" max="20" value="10"/></div>
+      <div class="control-group"><label>Max term $r$</label><input id="ctrlR2" type="range" min="50" max="600" step="50" value="300"/><span class="val-display" id="ctrlR2Val">300</span></div>
+    </div>
+    <canvas id="chartMulti" width="900" height="460"></canvas>
+    <div class="legend" id="multiLegend"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--               3. THE GEOMETRIC SEDUCTION                     -->
+<!-- ============================================================ -->
+<div class="paper">
+<h2 class="sec" id="s3">3. The Geometric Seduction</h2>
+
+<p class="drop-cap">At this point the conjecture writes itself. The exponent is $\frac{4}{5}$. The coefficient involves 5. In biology, Kleiber's law gives metabolic rate $B \propto M^{3/4}$. Here we have $c_n \propto r^{4/5}$. Where else do 4 and 5 appear together geometrically?</p>
+
+<h3 class="subsec">3.1 Hypersphere surface-area-to-volume ratios</h3>
+<p>The volume and surface area of the unit $d$-sphere are</p>
+
+<div class="display-math">
+  $$V_d = \frac{\pi^{d/2}}{\Gamma\!\left(\frac{d}{2}+1\right)}, \qquad S_d = \frac{2\pi^{d/2}}{\Gamma\!\left(\frac{d}{2}\right)} = d\,V_d.$$
+</div>
+
+<p>For a sphere of radius $r$: $V_d(r) = V_d\,r^d$, $S_d(r) = S_d\,r^{d-1}$, so $\frac{S_d(r)}{V_d(r)} = \frac{d}{r}.$</p>
+
+<table>
+  <thead><tr><th>$d$</th><th>$V_d$ (unit)</th><th>$S_d$ (unit)</th><th>$S_d/V_d$</th></tr></thead>
+  <tbody id="hyperBody"></tbody>
+</table>
+
+<p>For $d=5$: $\frac{S_5(r)}{V_5(r)} = \frac{\frac{8}{3}\pi^2 r^4}{\frac{8}{15}\pi^2 r^5} = \frac{5}{r}.$ The exponents 4 and 5 together. The coefficient $\frac{1}{5}$. Everything matches.</p>
+
+<div class="env env-conj">
+  <span class="env-label">Conjecture 3.1 (Original, 2021)</span>
+  The limiting growth function of the number density of primes between consecutive terms of polygon $n$-gon sequences is the Kleiber-like law given by the SA/V ratio of a 5-sphere: $\;c_n(r) \sim \frac{n-1}{5}\,r^{4/5}.$
+</div>
+
+<p>It is a beautiful picture. The primes, those most discrete of objects, governed by the continuous geometry of higher-dimensional spheres.</p>
+<p>It is also, as we shall now see, almost certainly wrong.</p>
+</div>
+
+<!-- ============================================================ -->
+<!--      4. THE PRIME NUMBER THEOREM IN DISGUISE                 -->
+<!-- ============================================================ -->
+<div class="paper">
+<h2 class="sec" id="s4">4. The Prime Number Theorem in Disguise</h2>
+
+<p class="drop-cap">Four-fifths is not a new law. It is an old one wearing a mask. The argument uses only logarithmic differentiation and a single asymptotic approximation.</p>
+
+<h3 class="subsec">4.1 The PNT estimate for polygonal gaps</h3>
+<p>The PNT states $\pi(x) \sim \frac{x}{\ln x}$: the density of primes near $x$ is $\sim \frac{1}{\ln x}$. For an interval of width $\Delta$ near $x$, the expected prime count is $\sim \frac{\Delta}{\ln x}$.</p>
+<p>For the $n$-gonal sequence at large $r$: $\Delta \approx (n-2)\,r$ and $x = P_n(r) \approx \frac{(n-2)\,r^2}{2}$. So:</p>
+
+<div class="display-math">
+  <span class="eq-label">(3)</span>
+  $$c_n^{\,\text{PNT}}(r) \approx \frac{(n-2)\,r}{\ln\!\left(\frac{(n-2)\,r^2}{2}\right)}.$$
+</div>
+
+<div class="env env-exer">
+  <span class="env-label">Exercise 4.1 &mdash; Check the approximation</span>
+  For $n=4$ at $r=278$: $P_4(278) = 278^2 = 77{,}284$ and gap $= 2(278)+1 = 557$. The approximation gives $2 \times 278 = 556$ and $\frac{2 \times 278^2}{2} = 77{,}284$ (exact for squares since $P_4(r)=r^2$).
+</div>
+
+<h3 class="subsec">4.2 The effective exponent on a log-log plot</h3>
+<p>On a log-log plot of $c_n(r)$ vs $r$, the local slope is</p>
+
+<div class="display-math">
+  $$\alpha_{\text{eff}}(r) = \frac{d[\ln c_n]}{d[\ln r]}.$$
+</div>
+
+<p>If $c_n(r) = A\,r^\beta$, then $\alpha_{\text{eff}} = \beta$ exactly. A varying $\alpha_{\text{eff}}$ means the data is <em>not</em> a pure power law.</p>
+
+<div class="env env-key">
+  <span class="env-label">Key Result &mdash; Effective exponent from the PNT</span>
+  Let $L = \ln\!\bigl(\frac{(n-2)r^2}{2}\bigr)$. Then $\ln c \approx \ln(n-2) + \ln r - \ln L$. Differentiating with respect to $u = \ln r$:
+  $$\frac{d(\ln c)}{du} = 1 - \frac{1}{L}\cdot\frac{dL}{du} = 1 - \frac{2}{L},$$
+  since $\frac{dL}{du} = 2$ (the only $r$-dependent term in $L$ is $2\ln r$). Therefore:
+  $$\boxed{\;\alpha_{\text{eff}}(r) = 1 - \frac{2}{\ln\!\left(\frac{(n-2)\,r^2}{2}\right)}\;}$$
+</div>
+
+<h3 class="subsec">4.3 When does $\alpha_{\text{eff}} = \frac{4}{5}$?</h3>
+<p>Setting $\alpha_{\text{eff}} = \frac{4}{5}$:</p>
+
+<div class="display-math">
+  $$1 - \frac{2}{L} = \frac{4}{5} \;\;\Longrightarrow\;\; L = 10 \;\;\Longrightarrow\;\; \frac{(n-2)\,r^2}{2} = e^{10} \approx 22{,}026.$$
+</div>
+
+<table>
+  <thead><tr><th>$n$</th><th>Name</th><th>$r$ at $\alpha_{\text{eff}} = 0.8$</th></tr></thead>
+  <tbody>
+    <tr><td>3</td><td>Triangle</td><td>$\sqrt{2 \times 22{,}026} \approx 210$</td></tr>
+    <tr><td>4</td><td>Square</td><td>$\sqrt{22{,}026} \approx 148$</td></tr>
+    <tr><td>5</td><td>Pentagon</td><td>$\sqrt{2 \times 22{,}026 / 3} \approx 121$</td></tr>
+    <tr><td>6</td><td>Hexagon</td><td>$\sqrt{22{,}026 / 2} \approx 105$</td></tr>
+    <tr><td>8</td><td>Octagon</td><td>$\sqrt{22{,}026 / 3} \approx 86$</td></tr>
+    <tr><td>10</td><td>Decagon</td><td>$\sqrt{22{,}026 / 4} \approx 74$</td></tr>
+  </tbody>
+</table>
+
+<p>All values lie squarely within the range $r = 1$ to $500$ over which the empirical law was calibrated.</p>
+</div>
+
+<!-- EFFECTIVE EXPONENT CHART -->
+<div class="wide-block">
+  <div class="card">
+    <div class="card-title">Effective Log-Log Exponent $\alpha_{\text{eff}}(r)$</div>
+    <div class="card-desc">The local slope of the PNT prediction. Dashed line: $\frac{4}{5} = 0.8$. Drag the slider to see what happens beyond the original range.</div>
+    <div class="controls">
+      <div class="control-group"><label>Max $r$</label><input id="ctrlAlphaR" type="range" min="100" max="5000" step="100" value="1000"/><span class="val-display" id="ctrlAlphaRVal">1000</span></div>
+    </div>
+    <canvas id="chartAlpha" width="900" height="340"></canvas>
+    <div class="legend" id="alphaLegend"></div>
+  </div>
+</div>
+
+<div class="paper">
+<h3 class="subsec">4.4 The exponent drifts</h3>
+
+<table>
+  <thead><tr><th>$r$ (for $n=4$)</th><th>$\alpha_{\text{eff}}(r)$</th></tr></thead>
+  <tbody>
+    <tr><td>150</td><td>0.80</td></tr>
+    <tr><td>500</td><td>0.84</td></tr>
+    <tr><td>2,000</td><td>0.87</td></tr>
+    <tr><td>10,000</td><td>0.90</td></tr>
+    <tr><td>$10^6$</td><td>0.93</td></tr>
+    <tr><td>$10^{12}$</td><td>0.96</td></tr>
+  </tbody>
+</table>
+
+<p>The logarithm is the slowest-growing unbounded function. Any power law that approximates a logarithmic function over a finite range will <em>look</em> exact within that range. The $\frac{4}{5}$ is not wrong. It is a snapshot of a moving target.</p>
+
+<div class="env env-caution">
+  <span class="env-label">The Salutary Lesson</span>
+  A pattern that holds for the first five hundred terms tells you nothing certain about the five-hundred-and-first, let alone the five-billionth. Physical science proceeds by induction: gather data, fit a law, test it. Number theory proceeds by deduction: state a theorem, prove it, know it holds for every integer to infinity. The gap between these modes is not a technicality. It is the whole point.
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!--          5. HIGHER-DIMENSIONAL EXTENSIONS                    -->
+<!-- ============================================================ -->
+<div class="paper">
+<h2 class="sec" id="s5">5. Higher-Dimensional Extensions</h2>
+
+<h3 class="subsec">5.1 The general setup</h3>
+<p>A $d$-dimensional figurate sequence of degree $n$ is generated by a polynomial of degree $d$ in $r$.</p>
+
+<table>
+  <thead><tr><th>Dim $d$</th><th>Name</th><th>Leading term</th><th>Gap growth</th></tr></thead>
+  <tbody>
+    <tr><td>2</td><td>Polygonal</td><td>$\frac{n-2}{2}\,r^2$</td><td>$\sim (n-2)\,r$</td></tr>
+    <tr><td>3</td><td>Polyhedral</td><td>$\frac{n-2}{6}\,r^3$</td><td>$\sim \frac{n-2}{2}\,r^2$</td></tr>
+    <tr><td>4</td><td>4D figurate</td><td>$\frac{n-2}{24}\,r^4$</td><td>$\sim \frac{n-2}{6}\,r^3$</td></tr>
+    <tr><td>$d$</td><td>General</td><td>$\frac{n-2}{d!}\,r^d$</td><td>$\sim \frac{n-2}{(d-1)!}\,r^{d-1}$</td></tr>
+  </tbody>
+</table>
+
+<div class="env env-exer">
+  <span class="env-label">Exercise 5.1 &mdash; Tetrahedral numbers</span>
+  The tetrahedral numbers are cumulative sums of triangulars: $T(r) = \frac{r(r+1)(r+2)}{6}.$ Show that the gap $T(r+1) - T(r) = \frac{(r+1)(r+2)}{2} \sim r^2/2.$ This is a cubic sequence with quadratic gaps.
+</div>
+
+<h3 class="subsec">5.2 Effective exponent for degree-$d$ sequences</h3>
+<p>For leading term $\frac{A}{d!}\,r^d$ with gap $\sim \frac{A}{(d-1)!}\,r^{d-1}$ and location $x \sim \frac{A}{d!}\,r^d$, the PNT count is:</p>
+
+<div class="display-math">
+  <span class="eq-label">(4)</span>
+  $$c^{(d)}(r) \approx \frac{\frac{A}{(d-1)!}\,r^{d-1}}{\ln\!\left(\frac{A}{d!}\,r^d\right)}.$$
+</div>
+
+<p>Differentiating as before:</p>
+
+<div class="env env-key">
+  <span class="env-label">Key Result &mdash; General effective exponent (in $r$)</span>
+  $$\boxed{\;\alpha_{\text{eff}}^{(d)}(r) = (d-1) - \frac{d}{\ln\!\left(\frac{A}{d!}\,r^d\right)}\;}$$
+  This approaches $d-1$ from below as $r \to \infty$.
+</div>
+
+<h3 class="subsec">5.3 Exponent in terms of sequence values</h3>
+<p>For cross-dimensional comparison, plot count vs $x = P_n(r)$ itself. Since $x \sim \frac{A}{d!}r^d$, the gap is $\Delta \sim C\,x^{(d-1)/d}$ and the PNT count is:</p>
+
+<div class="display-math">
+  <span class="eq-label">(5)</span>
+  $$c(x) \approx \frac{C\,x^{(d-1)/d}}{\ln x} \qquad\Longrightarrow\qquad \alpha_{\text{eff}}^{(d)}(x) = \frac{d-1}{d} - \frac{1}{\ln x}.$$
+</div>
+
+<div class="env env-key">
+  <span class="env-label">Key Result &mdash; Effective exponent by dimension (in $x$)</span>
+  <table>
+    <thead><tr><th>$d$</th><th>Limiting exponent (in $x$)</th><th>Limiting exponent (in $r$)</th></tr></thead>
+    <tbody>
+      <tr><td>2</td><td>$\frac{1}{2}$</td><td>$1$</td></tr>
+      <tr><td>3</td><td>$\frac{2}{3}$</td><td>$2$</td></tr>
+      <tr><td>4</td><td>$\frac{3}{4}$</td><td>$3$</td></tr>
+      <tr><td>$d$</td><td>$\frac{d-1}{d}$</td><td>$d-1$</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:8px;">Neither set of limiting exponents matches the hypersphere SA/V ratios in any natural way.</p>
+</div>
+
+<h3 class="subsec">5.4 Reconciling with the original observation</h3>
+<p>Why $\frac{4}{5}$ and not $\frac{1}{2}$? Because the original plots used $r$ as the independent variable, where $\alpha \to 1$ (not $\frac{1}{2}$). At $\ln x \approx 10$, the effective exponent in $r$ is $1 - \frac{2}{10} = \frac{4}{5}$. This coincidence &mdash; that $1 - \frac{1}{5} = \frac{4}{5}$ where $\frac{1}{5}$ comes from $\frac{2}{\ln(22{,}026)}$ and $22{,}026$ is the size of the polygonal numbers mid-range &mdash; is the <em>entire content</em> of the Kleiber analogy.</p>
+
+<div class="env env-exer">
+  <span class="env-label">Exercise 5.2 &mdash; The cubic case</span>
+  For tetrahedral numbers ($d=3$, $A=1$), $P(r) \approx r^3/6$ and gap $\approx r^2/2$. Show that:
+  $$\alpha_{\text{eff}}(r) = 2 - \frac{3}{\ln(r^3/6)}.$$
+  At what value of $r$ does $\alpha_{\text{eff}} = \frac{5}{3}$? <em>(Answer: $\ln(r^3/6) = 9$, so $r^3/6 \approx 8{,}103$, giving $r \approx 37$.)</em> Over the range $r = 30$&ndash;$100$, you would measure an effective exponent near 1.7.
+</div>
+</div>
+
+<!-- HIGHER-DIM ALPHA CHART -->
+<div class="wide-block">
+  <div class="card">
+    <div class="card-title">Effective exponents across dimensions</div>
+    <div class="card-desc">Effective $\alpha_{\text{eff}}^{(d)}(r)$ for $d=2$ (polygonal), $d=3$ (polyhedral), $d=4$ (4D). Dashed lines mark the finite-range values originally observed.</div>
+    <div class="controls">
+      <div class="control-group"><label>Max $r$</label><input id="ctrlAlphaDR" type="range" min="50" max="2000" step="50" value="500"/><span class="val-display" id="ctrlAlphaDRVal">500</span></div>
+    </div>
+    <canvas id="chartAlphaD" width="900" height="340"></canvas>
+    <div class="legend" id="alphaDLegend"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--          6. WHAT REMAINS OPEN                                -->
+<!-- ============================================================ -->
+<div class="paper">
+<h2 class="sec" id="s6">6. What Remains Open</h2>
+
+<p>The exponent is explained. The coefficient is not.</p>
+
+<p>The empirical law has $c_n(r) \approx \frac{n-1}{5}\,r^{4/5}$. The PNT gives $c_n^{\,\text{PNT}}(r) \approx \frac{(n-2)\,r}{\ln\bigl(\frac{(n-2)r^2}{2}\bigr)}$. Over the range where $\alpha_{\text{eff}} \approx 0.8$, a power-law regression on the PNT curve yields a coefficient that depends on $n$. Whether it can be written as $\frac{n-1}{5}$ (note: $n-1$, not $n-2$) for a structural reason, or whether this is another finite-range artefact, is a genuine question.</p>
+
+<div class="env env-exer">
+  <span class="env-label">Project suggestion</span>
+  Compute $c_n(r)$ for $n = 3, \ldots, 15$ and $r = 1, \ldots, 10{,}000$. For each $n$, fit $c_n(r) = A_n\,r^{\beta_n}$ over sliding windows of width 200. Plot $\beta_n$ as a function of window centre. Verify the drift. Then plot $A_n$ against $n$ for a fixed window. Is $A_n \propto n-1$ stable?
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!--          7. EPISTEMOLOGICAL CODA                             -->
+<!-- ============================================================ -->
+<div class="paper">
+<h2 class="sec" id="s7">7. Epistemological Coda</h2>
+
+<p class="drop-cap">Numbers are patient. They will confirm almost any pattern you propose, for a while.</p>
+
+<p>The physical sciences proceed by induction. You gather data, fit a law, test it. If the law survives, you accept it provisionally. This method sent spacecraft to the moon and vaccines into arms.</p>
+
+<p>But number theory is not physics. Its objects are infinite. A property of the first $10^{12}$ primes may not hold for the next. The Mertens conjecture, plausible up to enormous values, is false. The first counterexample to the P&oacute;lya conjecture occurs at $n = 906{,}150{,}257$. Skewes' number reminds us that $\pi(x) > \mathrm{Li}(x)$ must eventually happen, though no one has ever observed it.</p>
+
+<p>The $\frac{4}{5}$ law is a gentler example. It is not false &mdash; it describes a real feature of the data at finite range. But it mistakes a shadow for a source. The source is the prime number theorem. The shadow shifts as you move the lamp.</p>
+
+<p>The lesson: when confronted with a numerical pattern, always ask what the asymptotic theory predicts. Compute the effective exponent analytically. Check whether the pattern is a feature of the structure or a feature of the window. The tools &mdash; logarithmic differentiation, asymptotic expansion, the PNT itself &mdash; are not difficult. They are the minimum equipment for navigating a landscape where the finite and the infinite coexist uneasily.</p>
+</div>
+
+<div class="sep">&mdash;</div>
+
+<!-- DATA TABLE -->
+<div class="wide-block">
+  <div class="card">
+    <div class="card-title">Appendix: Sample Values (Square Numbers, $n=4$)</div>
+    <table class="paper" id="dataTable" style="font-family:var(--mono);font-size:0.82rem;">
+      <thead><tr><th>$r$</th><th>$P_4(r)$</th><th>$P_4(r\!+\!1)$</th><th>Gap</th><th>Actual</th><th>4/5 Law</th><th>PNT</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<footer>
+  Originally published at <em>mcmurmerings.wordpress.com</em>, October 2021. Interactive paper and analytic commentary, 2026.
+</footer>
+
+<!-- ============================================================ -->
+<!--                       JAVASCRIPT                             -->
+<!-- ============================================================ -->
+<script>
+// ---- KaTeX auto-render ----
+document.addEventListener('DOMContentLoaded', () => {
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false},
+    ],
+    throwOnError: false,
+  });
+});
+
+// ---- Core math ----
+function polygonal(n, r) { return ((n - 2) * r * r - (n - 4) * r) / 2; }
+function sieve(limit) {
+  const ip = new Uint8Array(limit + 1); ip.fill(1); ip[0] = 0; ip[1] = 0;
+  for (let p = 2; p * p <= limit; p++) { if (ip[p]) for (let k = p * p; k <= limit; k += p) ip[k] = 0; }
+  return ip;
+}
+function prefixCounts(ip) {
+  const pf = new Int32Array(ip.length); let r = 0;
+  for (let i = 0; i < ip.length; i++) { if (ip[i]) r++; pf[i] = r; } return pf;
+}
+function primesBetween(pf, a, b) { return pf[b] - (a >= 0 ? pf[a] : 0); }
+function empiricalFit(n, r) { return ((n - 1) / 5) * Math.pow(r, 4 / 5); }
+function pntEstimate(n, r) {
+  let x = polygonal(n, r); const gap = polygonal(n, r + 1) - x;
+  if (x < 3) x = 3; return gap / Math.log(x);
+}
+function buildData(n, rMax, pf) {
+  const d = [];
+  for (let r = 1; r <= rMax; r++) {
+    const a = polygonal(n, r), b = polygonal(n, r + 1);
+    d.push({ r, a, b, gap: b - a, actual: primesBetween(pf, a, b), fit: empiricalFit(n, r), pnt: pntEstimate(n, r) });
+  }
+  return d;
+}
+
+// ---- Tick helpers ----
+function niceTicksLinear(min, max, n) {
+  const range = max - min, rough = range / n;
+  const pw = Math.pow(10, Math.floor(Math.log10(rough)));
+  const nm = rough / pw;
+  let step = nm < 1.5 ? pw : nm < 3.5 ? 2*pw : nm < 7.5 ? 5*pw : 10*pw;
+  const ticks = []; let v = Math.ceil(min / step) * step;
+  while (v <= max) { ticks.push(v); v += step; } return ticks;
+}
+function niceTicksLog(lo, hi) {
+  const ticks = [];
+  for (let e = Math.floor(lo); e <= Math.ceil(hi); e++) {
+    [1, 2, 5].forEach(m => {
+      const sv = m * Math.pow(10, e), sl = Math.log10(sv);
+      if (sl >= lo - 0.01 && sl <= hi + 0.01) ticks.push({ val: sv, label: sv >= 1 ? sv.toLocaleString() : sv.toString() });
+    });
+  }
+  return ticks;
+}
+function fmtN(v) { return v >= 1000 ? v.toLocaleString() : v >= 1 ? Math.round(v)+'' : v.toFixed(1); }
+
+const NGON_COLORS = ['#c9362c','#d97b1a','#c4a800','#3da34d','#1a9a8a','#2a7fb4','#4a5eb8','#7b3db4','#b43da0','#c94a6a','#8b5e3c','#5c7a2e','#2e7a6d','#6a4ca0','#a0522d','#1b7a7a','#7a1b4e','#4a8a2a'];
+
+// ---- Generic single-series chart ----
+function drawSingle(canvas, data, dotCol, log) {
+  const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const pad = {l:68,r:18,t:16,b:44}, pW = W-pad.l-pad.r, pH = H-pad.t-pad.b;
+  const allY = data.map(d => Math.max(d.actual, d.fit, d.pnt));
+  let xMin, xMax, yMin, yMax, xM, yM;
+  if (log) {
+    xMin=0; xMax=Math.log10(Math.max(...data.map(d=>d.r)));
+    yMin=Math.log10(0.5); yMax=Math.log10(Math.max(...allY)*1.15);
+    xM=r=>pad.l+((Math.log10(Math.max(r,1))-xMin)/(xMax-xMin))*pW;
+    yM=v=>H-pad.b-((Math.log10(Math.max(v,0.5))-yMin)/(yMax-yMin))*pH;
+  } else {
+    xMax=Math.max(...data.map(d=>d.r))*1.02; yMax=Math.max(...allY)*1.08;
+    xM=r=>pad.l+(r/xMax)*pW; yM=v=>H-pad.b-(v/yMax)*pH;
+  }
+  ctx.font='10px JetBrains Mono,monospace';
+  if (log) {
+    niceTicksLog(xMin,xMax).forEach(t=>{const x=xM(t.val);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(t.label,x,H-pad.b+5);});
+    niceTicksLog(yMin,yMax).forEach(t=>{const y=yM(t.val);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(t.label,pad.l-6,y);});
+  } else {
+    niceTicksLinear(0,xMax,6).forEach(v=>{const x=xM(v);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(fmtN(v),x,H-pad.b+5);});
+    niceTicksLinear(0,yMax,6).forEach(v=>{const y=yM(v);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(fmtN(v),pad.l-6,y);});
+  }
+  ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='#6b6560';ctx.font='11px Source Sans 3,sans-serif';ctx.textAlign='center';
+  ctx.fillText(log?'r (log)':'r',pad.l+pW/2,H-4);
+  ctx.save();ctx.translate(10,pad.t+pH/2);ctx.rotate(-Math.PI/2);ctx.fillText('primes in gap',0,0);ctx.restore();
+  data.forEach(d=>{ctx.fillStyle=dotCol;ctx.beginPath();ctx.arc(xM(d.r),yM(d.actual),3,0,Math.PI*2);ctx.fill();});
+  function sl(acc,col,w,dash){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.setLineDash(dash||[]);ctx.beginPath();data.forEach((d,i)=>{const x=xM(d.r),y=yM(acc(d));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();ctx.setLineDash([]);}
+  sl(d=>d.fit,'#7b3db4',2.5,[]);
+  sl(d=>d.pnt,'#2a5fb4',2,[6,4]);
+}
+
+// ---- Multi-polygon chart ----
+function drawMulti(canvas, all, nVals) {
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
+  const pad={l:68,r:18,t:16,b:44},pW=W-pad.l-pad.r,pH=H-pad.t-pad.b;
+  let mR=1,mY=1;all.forEach(s=>s.forEach(d=>{mR=Math.max(mR,d.r);mY=Math.max(mY,d.actual);}));
+  const lxMin=0,lxMax=Math.log10(mR),lyMin=Math.log10(0.5),lyMax=Math.log10(mY*1.15);
+  const xM=r=>pad.l+((Math.log10(Math.max(r,1))-lxMin)/(lxMax-lxMin))*pW;
+  const yM=v=>H-pad.b-((Math.log10(Math.max(v,0.5))-lyMin)/(lyMax-lyMin))*pH;
+  ctx.font='10px JetBrains Mono,monospace';
+  niceTicksLog(lxMin,lxMax).forEach(t=>{const x=xM(t.val);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(t.label,x,H-pad.b+5);});
+  niceTicksLog(lyMin,lyMax).forEach(t=>{const y=yM(t.val);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(t.label,pad.l-6,y);});
+  ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='#6b6560';ctx.font='11px Source Sans 3,sans-serif';ctx.textAlign='center';ctx.fillText('r (log)',pad.l+pW/2,H-4);
+  ctx.save();ctx.translate(10,pad.t+pH/2);ctx.rotate(-Math.PI/2);ctx.fillText('primes in gap (log)',0,0);ctx.restore();
+  all.forEach((s,i)=>{const c=NGON_COLORS[i%NGON_COLORS.length];ctx.fillStyle=c+'cc';s.forEach(d=>{ctx.beginPath();ctx.arc(xM(d.r),yM(d.actual),3,0,Math.PI*2);ctx.fill();});});
+  const envN=Math.max(...nVals);
+  ctx.strokeStyle='#7b3db4';ctx.lineWidth=2.5;ctx.beginPath();
+  for(let r=1;r<=mR;r+=2){const v=empiricalFit(envN,r),x=xM(r),y=yM(v);r===1?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  ctx.strokeStyle='#2a5fb4';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();
+  for(let r=2;r<=mR;r+=2){const v=pntEstimate(envN,r),x=xM(r),y=yM(v);r===2?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);
+  const leg=document.getElementById('multiLegend');leg.innerHTML='';
+  nVals.forEach((n,i)=>{const it=document.createElement('div');it.className='legend-item';it.innerHTML=`<div class="legend-swatch" style="background:${NGON_COLORS[i%NGON_COLORS.length]}"></div>${n}-gon`;leg.appendChild(it);});
+  ['<div class="legend-line" style="background:#7b3db4"></div>4/5 law','<div class="legend-swatch" style="background:transparent;border:2px dashed #2a5fb4"></div>PNT'].forEach(h=>{const it=document.createElement('div');it.className='legend-item';it.innerHTML=h;leg.appendChild(it);});
+}
+
+// ---- Number line ----
+function drawNL(canvas, n, terms) {
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
+  const pad={l:18,r:18,t:8,b:26},pW=W-pad.l-pad.r;
+  const vals=[];for(let r=1;r<=terms+1;r++)vals.push(polygonal(n,r));
+  const mx=vals[vals.length-1],is=sieve(mx);
+  const xM=v=>pad.l+(v/mx)*pW,midY=H/2-2;
+  ctx.strokeStyle='#ccc';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(pad.l,midY);ctx.lineTo(W-pad.r,midY);ctx.stroke();
+  for(let i=0;i<vals.length-1;i++){
+    const a=vals[i],b=vals[i+1],xa=xM(a),xb=xM(b),col=NGON_COLORS[i%NGON_COLORS.length];
+    ctx.fillStyle=col+'15';ctx.fillRect(xa,midY-16,xb-xa,32);
+    ctx.strokeStyle=col+'55';ctx.lineWidth=1;ctx.strokeRect(xa,midY-16,xb-xa,32);
+    ctx.strokeStyle='#555';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(xa,midY-20);ctx.lineTo(xa,midY+20);ctx.stroke();
+    ctx.fillStyle='#333';ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(a+'',xa,midY+22);
+    let cnt=0;for(let p=a+1;p<=b;p++){if(is[p]){cnt++;ctx.fillStyle=col;ctx.beginPath();ctx.arc(xM(p),midY,3,0,Math.PI*2);ctx.fill();}}
+    ctx.fillStyle=col;ctx.font='bold 10px Source Sans 3,sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(cnt+' primes',(xa+xb)/2,midY-19);
+  }
+  const lx=xM(vals[vals.length-1]);ctx.strokeStyle='#555';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lx,midY-20);ctx.lineTo(lx,midY+20);ctx.stroke();
+  ctx.fillStyle='#333';ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(vals[vals.length-1]+'',lx,midY+22);
+}
+
+// ---- Alpha chart (d=2) ----
+function effAlpha(n,r){const a=(n-2)*r*r/2;return a<3?0:1-2/Math.log(a);}
+function drawAlpha(canvasId, legendId, rMaxId, rValId) {
+  const canvas=document.getElementById(canvasId),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const rMax=parseInt(document.getElementById(rMaxId).value,10);
+  document.getElementById(rValId).textContent=rMax;
+  const pad={l:56,r:18,t:14,b:44},pW=W-pad.l-pad.r,pH=H-pad.t-pad.b;
+  const yMin=0.55,yMax=1.0;
+  const xM=r=>pad.l+(r/rMax)*pW, yM=v=>H-pad.b-((v-yMin)/(yMax-yMin))*pH;
+  ctx.font='10px JetBrains Mono,monospace';
+  [0.6,0.7,0.8,0.9,1.0].forEach(v=>{const y=yM(v);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(v.toFixed(1),pad.l-6,y);});
+  niceTicksLinear(0,rMax,6).forEach(v=>{const x=xM(v);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(fmtN(v),x,H-pad.b+5);});
+  ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='#6b6560';ctx.font='11px Source Sans 3,sans-serif';ctx.textAlign='center';ctx.fillText('r',pad.l+pW/2,H-4);
+  ctx.save();ctx.translate(10,pad.t+pH/2);ctx.rotate(-Math.PI/2);ctx.fillText('α(r)',0,0);ctx.restore();
+  // 4/5 ref
+  ctx.strokeStyle='#b44c2a';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);
+  const y80=yM(0.8);ctx.beginPath();ctx.moveTo(pad.l,y80);ctx.lineTo(W-pad.r,y80);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#b44c2a';ctx.font='bold 10px Source Sans 3,sans-serif';ctx.textAlign='left';ctx.fillText('4/5',W-pad.r-28,y80-7);
+  const nSet=[3,4,5,6,8,10],cols=['#c9362c','#d97b1a','#c4a800','#3da34d','#2a7fb4','#7b3db4'];
+  nSet.forEach((n,i)=>{ctx.strokeStyle=cols[i];ctx.lineWidth=2;ctx.beginPath();let f=true;
+    for(let r=2;r<=rMax;r+=2){const a=effAlpha(n,r);if(a<yMin)continue;const x=xM(r),y=yM(Math.min(a,yMax));f?(ctx.moveTo(x,y),f=false):ctx.lineTo(x,y);}ctx.stroke();});
+  const leg=document.getElementById(legendId);leg.innerHTML='';
+  nSet.forEach((n,i)=>{const it=document.createElement('div');it.className='legend-item';it.innerHTML=`<div class="legend-line" style="background:${cols[i]}"></div>n=${n}`;leg.appendChild(it);});
+}
+
+// ---- Alpha chart (multi-dim d=2,3,4) ----
+function effAlphaD(d, n, r) {
+  // General: alpha = (d-1) - d/ln(A*r^d/d!) where A = n-2
+  const A = n - 2;
+  const x = A * Math.pow(r, d);
+  let fac = 1; for (let i = 2; i <= d; i++) fac *= i;
+  const arg = x / fac;
+  if (arg < 3) return 0;
+  return (d - 1) - d / Math.log(arg);
+}
+
+function drawAlphaD() {
+  const canvas=document.getElementById('chartAlphaD'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const rMax=parseInt(document.getElementById('ctrlAlphaDR').value,10);
+  document.getElementById('ctrlAlphaDRVal').textContent=rMax;
+  const pad={l:56,r:18,t:14,b:44},pW=W-pad.l-pad.r,pH=H-pad.t-pad.b;
+  const yMin=0.4,yMax=3.2;
+  const xM=r=>pad.l+(r/rMax)*pW, yM=v=>H-pad.b-((v-yMin)/(yMax-yMin))*pH;
+  ctx.font='10px JetBrains Mono,monospace';
+  [0.5,1.0,1.5,2.0,2.5,3.0].forEach(v=>{const y=yM(v);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(v.toFixed(1),pad.l-6,y);});
+  niceTicksLinear(0,rMax,6).forEach(v=>{const x=xM(v);ctx.strokeStyle='#eae6e0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();ctx.fillStyle='#8a8580';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(fmtN(v),x,H-pad.b+5);});
+  ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='#6b6560';ctx.font='11px Source Sans 3,sans-serif';ctx.textAlign='center';ctx.fillText('r',pad.l+pW/2,H-4);
+  ctx.save();ctx.translate(10,pad.t+pH/2);ctx.rotate(-Math.PI/2);ctx.fillText('α(r)',0,0);ctx.restore();
+  // Reference lines at 4/5, 5/3
+  [{v:0.8,l:'4/5',c:'#b44c2a'},{v:5/3,l:'5/3',c:'#2a5fb4'}].forEach(({v,l,c})=>{
+    const y=yM(v);ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.setLineDash([5,3]);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=c;ctx.font='bold 10px Source Sans 3,sans-serif';ctx.textAlign='left';ctx.fillText(l,W-pad.r-28,y-7);
+  });
+  // Asymptotic limits at d-1: 1, 2, 3
+  [{v:1,l:'d=2 limit'},{v:2,l:'d=3 limit'},{v:3,l:'d=4 limit'}].forEach(({v,l})=>{
+    const y=yM(v);ctx.strokeStyle='#ccc';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.setLineDash([]);
+  });
+  const cases=[{d:2,n:4,col:'#c9362c',lab:'d=2 (squares)'},{d:2,n:8,col:'#d97b1a',lab:'d=2 (octagons)'},{d:3,n:3,col:'#3da34d',lab:'d=3 (tetrahedral)'},{d:3,n:6,col:'#1a9a8a',lab:'d=3 (n=6 polyhed.)'},{d:4,n:3,col:'#2a7fb4',lab:'d=4 (n=3)'},{d:4,n:6,col:'#7b3db4',lab:'d=4 (n=6)'}];
+  cases.forEach(({d,n,col})=>{ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();let f=true;
+    for(let r=2;r<=rMax;r+=2){const a=effAlphaD(d,n,r);if(a<yMin||a>yMax+0.5)continue;const x=xM(r),y=yM(Math.min(Math.max(a,yMin),yMax));f?(ctx.moveTo(x,y),f=false):ctx.lineTo(x,y);}ctx.stroke();});
+  const leg=document.getElementById('alphaDLegend');leg.innerHTML='';
+  cases.forEach(({col,lab})=>{const it=document.createElement('div');it.className='legend-item';it.innerHTML=`<div class="legend-line" style="background:${col}"></div>${lab}`;leg.appendChild(it);});
+}
+
+// ---- Hypersphere table ----
+function buildHyper() {
+  const tb=document.getElementById('hyperBody');
+  const g=n=>{if(n===1)return 1;if(n===0.5)return Math.sqrt(Math.PI);return(n-1)*g(n-1);};
+  const V=d=>Math.pow(Math.PI,d/2)/g(d/2+1), S=d=>d*V(d);
+  for(let d=1;d<=8;d++){const v=V(d),s=S(d),r=s/v;const cls=d===5?' class="hl"':'';
+    const tr=document.createElement('tr');tr.innerHTML=`<td${cls}>${d}</td><td${cls}>${v.toFixed(4)}</td><td${cls}>${s.toFixed(4)}</td><td${cls}>${r.toFixed(1)}</td>`;tb.appendChild(tr);}
+}
+buildHyper();
+
+// ---- Data table ----
+function fillTable() {
+  const n=4,rMax=500,lim=polygonal(n,rMax+1),pf=prefixCounts(sieve(lim)),data=buildData(n,rMax,pf);
+  const tb=document.querySelector('#dataTable tbody');tb.innerHTML='';
+  [1,5,10,25,50,100,200,278,400,500].forEach(r=>{if(r>data.length)return;const d=data[r-1];
+    const tr=document.createElement('tr');tr.innerHTML=`<td>${d.r}</td><td>${d.a.toLocaleString()}</td><td>${d.b.toLocaleString()}</td><td>${d.gap.toLocaleString()}</td><td>${d.actual}</td><td>${d.fit.toFixed(1)}</td><td>${d.pnt.toFixed(1)}</td>`;tb.appendChild(tr);});
+}
+fillTable();
+
+// ---- Init static charts ----
+function initStatic() {
+  const rMax=300,lim=polygonal(4,rMax+1),pf=prefixCounts(sieve(lim));
+  drawSingle(document.getElementById('chartStatic3'),buildData(3,rMax,pf),'#b44c2a',true);
+  drawSingle(document.getElementById('chartStatic4'),buildData(4,rMax,pf),'#2a5fb4',true);
+}
+initStatic();
+drawNL(document.getElementById('nlTriangle'),3,10);
+drawNL(document.getElementById('nlSquare'),4,10);
+
+// ---- Interactive: multi ----
+function refreshMulti() {
+  const nMax=Math.max(4,parseInt(document.getElementById('ctrlNMax').value,10));
+  const rMax=parseInt(document.getElementById('ctrlR2').value,10);
+  document.getElementById('ctrlR2Val').textContent=rMax;
+  const lim=polygonal(nMax,rMax+1),pf=prefixCounts(sieve(lim));
+  const nV=[],all=[];for(let n=3;n<=nMax;n++){nV.push(n);all.push(buildData(n,rMax,pf));}
+  drawMulti(document.getElementById('chartMulti'),all,nV);
+}
+['ctrlNMax','ctrlR2'].forEach(id=>document.getElementById(id).addEventListener('input',refreshMulti));
+refreshMulti();
+
+// ---- Interactive: alpha ----
+document.getElementById('ctrlAlphaR').addEventListener('input',()=>drawAlpha('chartAlpha','alphaLegend','ctrlAlphaR','ctrlAlphaRVal'));
+drawAlpha('chartAlpha','alphaLegend','ctrlAlphaR','ctrlAlphaRVal');
+
+// ---- Interactive: alpha-D ----
+document.getElementById('ctrlAlphaDR').addEventListener('input',drawAlphaD);
+drawAlphaD();
+</script>
+</body>
+</html>
